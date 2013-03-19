@@ -25,9 +25,10 @@ has root => (
 );
 
 has build_root => (
-  is      => 'ro',
-  lazy    => 1,
-  default => sub {
+  is       => 'ro',
+  lazy     => 1,
+  init_arg => undef,
+  default  => sub {
     my $self = shift;
     local $CWD = $self->root->stringify;
     if(-e $self->root->file('dist.ini'))
@@ -56,9 +57,10 @@ has build_root => (
 );
 
 has build_meta => (
-  is      => 'ro',
-  lazy    => 1,
-  default => sub {
+  is       => 'ro',
+  lazy     => 1,
+  init_arg => undef,
+  default  => sub {
     my $root = shift->build_root;
     my $fn;
     foreach my $file (qw( META.json META.yml ))
