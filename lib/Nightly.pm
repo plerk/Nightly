@@ -3,6 +3,7 @@ package Nightly;
 use strict;
 use warnings;
 use v5.10;
+use Path::Class::Dir;
 
 # ABSTRACT: Tools for Continuous Integration Testing and Documentation
 # VERSION
@@ -21,6 +22,26 @@ sub isa_dir
   ];
 
   return @$attr;
+}
+
+sub share_dir
+{
+  state $path;
+  
+  unless(defined $path)
+  {
+    $path = Path::Class::File
+      ->new($INC{'Nightly.pm'})
+      ->absolute
+      ->dir
+      ->parent
+      ->subdir('share');
+    
+    $path = Path::Class::Dir->new(dist_dir('Nightly'))
+      unless -d $path;
+  }
+  
+  return $path;
 }
 
 1;

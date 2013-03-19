@@ -1,0 +1,30 @@
+[% WRAPPER wrapper.tt
+   title = 'Perl Distributions'
+%]
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Abstract</th>
+      <th>Version</th>
+    <tr>
+  </thead>
+  <tbody>
+  [% FOREACH d IN dists %]
+    <tr>
+      <td>
+        <a href="[% d.url %]">[% d.name %]</a>
+      </td>
+      <td>
+        <a href="[% d.url %]">[% d.meta.abstract %]</a>
+      </td>
+      <td>
+        <a href="[% d.url %]">[% d.meta.version %]</a>
+      </td>
+    </tr>
+  [% END %]
+  </tbody>
+</table>
+
+[% END %]
