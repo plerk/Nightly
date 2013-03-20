@@ -25,7 +25,10 @@ sub checkout
     unless defined $dest;
   $dest = dir( $dest ) unless ref $dest;
   Nightly->extract_tar($self->file->stringify, $dest);
-  Nightly::Dist->new( root => $dest );
+  Nightly::Dist->new(
+    root       => $dest,
+    build_root => $dest,
+  );
 }
 
 1;

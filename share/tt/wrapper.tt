@@ -52,13 +52,13 @@
               <ul class="nav">
                 <li>
                   <a class="dropdown-toggle" id="drop1" role="button" data-toggle="dropdown" data-target="#" href="[% dist.url %]">
-                    Links
+                    External Links
                     <b class="caret"></b>
                   </a>
                   <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
-                    [% FOREACH resource IN dist.build_meta.resources.pairs %]
-                      <li><a tabindex="-1" href="[% IF resource.value.web %][% resource.value.web %][% ELSE %][% resource.value %][% END %]">
-                        [% resource.key.ucfirst %]</a>
+                    [% FOREACH link IN dist.external_links %]
+                      <li><a tabindex="-1" href="[% link.url %]">
+                        [% link.name | html %]</a>
                     [% END %]
                   </ul>
                 </li>

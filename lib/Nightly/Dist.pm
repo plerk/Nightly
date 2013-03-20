@@ -12,8 +12,10 @@ use Path::Class::Dir;
 use AnyEvent;
 use AnyEvent::Open3::Simple;
 use CPAN::Meta;
+use URI;
 use Nightly;
 use Nightly::Pod::File;
+use Nightly::ExternalLink;
 
 # ABSTRACT: Checked or untared dist
 # VERSION
@@ -27,7 +29,6 @@ has root => (
 has build_root => (
   is       => 'ro',
   lazy     => 1,
-  init_arg => undef,
   default  => sub {
     my $self = shift;
     local $CWD = $self->root->stringify;
@@ -54,6 +55,7 @@ has build_root => (
       die 'FIXME';
     }
   },
+  Nightly->isa_dir,
 );
 
 has build_meta => (
@@ -88,7 +90,6 @@ sub _run
       
       if($exit_value != 0 || $signal != 0)
       {
-        $DB::single = 1;
         $cv->croak(join("\n", 'External Command Error', "% @cmdline", @out));
       }
       else
@@ -209,5 +210,32 @@ has home_url => (
   is => 'rw',
   Nightly->isa_uri,
 );
+
+sub external_links
+{
+  my($self, @new) = @_;
+
+  unless(defined $self->{external_links})
+  {
+    foreach my $name (keys %{ $self->build_meta->resources })
+    {
+      my $value = $self->build_meta->resources->{$name};
+      my $url = ref($value) ? (values %$value)[0] : $value;
+      $url =~ s{^git:}{https:};
+      $url = URI->new($url);
+      $url->host('search.mcpan.org')
+        if $url->host eq 'search.cpan.org';
+      push @{ $self->{external_links} }, 
+        Nightly::ExternalLink->new(
+          name => $name,
+          url  => $url,
+        );
+    }
+  }
+
+  push @{ $self->{external_links} }, @new if @new > 0;
+  
+  return $self->{external_links};
+}
 
 1;
