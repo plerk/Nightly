@@ -124,14 +124,6 @@ has pod_links => (
   default => sub { {} },
 );
 
-sub _cmp
-{
-  my($a,$b) = map { $_->basename } @_;
-  $a =~ s/\..*$//;
-  $b =~ s/\..*$//;
-  $a cmp $b;
-}
-
 sub find_pods
 {
   my($self) = @_;
@@ -155,7 +147,7 @@ sub find_pods
   my $recurse;
   $recurse = sub {
     my($dir, @name) = @_;
-    foreach my $child (sort { _cmp($a,$b) } $dir->children(no_hidden => 1))
+    foreach my $child ($dir->children(no_hidden => 1))
     {
       if($child->is_dir)
       { $recurse->($child, @name, $child->basename) }
@@ -178,6 +170,9 @@ sub find_pods
     $recurse->($self->build_root->subdir('lib'));
   }
   undef $recurse;
+  
+  @{ $self->pod_links->{$_} } = sort { $a->name cmp $b->name } @{ $self->pod_links->{$_} }
+    for keys %{ $self->pod_links };
   
   return @list;
 }

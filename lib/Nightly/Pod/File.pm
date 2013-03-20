@@ -83,14 +83,28 @@ sub html
   $html;
 }
 
+sub slurp
+{
+  scalar shift->file->slurp;
+}
+
 sub link
 {
   my $self = shift;
   Nightly::Pod::Link->new(
     name     => $self->name,
     abstract => $self->abstract,
+    filename => $self->filename,
   )
 }
+
+has filename => (
+  is => 'ro',
+  lazy => 1,
+  default => sub {
+    shift->name . '.html';
+  },
+);
 
 1;
 

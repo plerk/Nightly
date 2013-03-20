@@ -8,6 +8,7 @@ use warnings NONFATAL => 'all';
 use URI;
 use URI::file;
 use File::HomeDir;
+use Path::Class::File;
 use Path::Class::Dir;
 use File::Copy qw( copy );
 use Template;
@@ -230,7 +231,19 @@ sub generate_pod_html
 
   Nightly::HTML::Generator->nightly_resolver(sub {
     my($page) = @_;
-    return;
+    if(my $pod = $self->pods->{$page})
+    {
+      my $uri = $pod->dist->root_url->clone;
+      my $path = Path::Class::File
+        ->new_foreign('Unix', $pod->dist->root_url->path, $pod->filename)
+        ->as_foreign('Unix');
+      $uri->path($path);
+      return $uri->as_string;
+    }
+    else
+    {
+      return;
+    }
   });
 
   while(($name, $pod) = each %{ $self->pods })

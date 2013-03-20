@@ -1,5 +1,6 @@
 [% WRAPPER wrapper.tt
    title = pod.name
+   dist  = pod.dist
 %]
 
 <ul class="nav nav-tabs" id="perl_doc_tab">
@@ -9,10 +10,10 @@
 
 <div class="tab-content">
   <div class="tab-pane active" id="pod">
-    [% pod_html %]
+    [% pod.html %]
   </div>
   <div class="tab-pane" id="src">
-    <pre class="sh_perl"><code>[% pl | html %]</code></pre>
+    <pre class="sh_perl"><code>[% pod.slurp | html %]</code></pre>
   </div>
 </div>
 

@@ -29,6 +29,7 @@ sub new
   $self->html_header('');
   $self->html_footer('');
   $self->html_h_level(3);
+  $self->perldoc_url_prefix("http://search.mcpan.org/perldoc?");
   return $self;
 }
 

@@ -22,11 +22,8 @@ has abstract => (
 );
 
 has filename => (
-  is => 'ro',
-  lazy => 1,
-  default => sub {
-    shift->name . '.html';
-  },
+  is       => 'ro',
+  required => 1,
 );
 
 1;
