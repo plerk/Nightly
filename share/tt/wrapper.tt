@@ -49,20 +49,22 @@
                   <a href="[% dist.home_url %]">[% dist.build_meta.name %]</a>
                 </li>
               </ul>
-              <ul class="nav">
-                <li>
-                  <a class="dropdown-toggle" id="drop1" role="button" data-toggle="dropdown" data-target="#" href="[% dist.url %]">
-                    External Links
-                    <b class="caret"></b>
-                  </a>
-                  <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
-                    [% FOREACH link IN dist.external_links %]
-                      <li><a tabindex="-1" href="[% link.url %]">
-                        [% link.name | html %]</a>
-                    [% END %]
-                  </ul>
-                </li>
-              </ul>
+              [% IF dist.external_links %]
+                <ul class="nav">
+                  <li>
+                    <a class="dropdown-toggle" id="drop1" role="button" data-toggle="dropdown" data-target="#" href="[% dist.url %]">
+                      External Links
+                       <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
+                      [% FOREACH link IN dist.external_links %]
+                        <li><a tabindex="-1" href="[% link.url %]">
+                          [% link.name | html %]</a>
+                      [% END %]
+                    </ul>
+                  </li>
+                </ul>
+              [% END %]
             [% END %]
           </div><!--/.nav-collapse -->
         </div>
