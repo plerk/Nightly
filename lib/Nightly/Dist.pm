@@ -31,13 +31,7 @@ has build_root => (
   default  => sub {
     my $self = shift;
     local $CWD = $self->root->stringify;
-    if(-e $self->root->file('dist.ini'))
-    {
-      my $build_root = Path::Class::Dir->new( tempdir( CLEANUP => 1 ) );
-      $self->_run('dzil', 'build', '--in' => $build_root);      
-      return $build_root;
-    }
-    elsif(-e $self->root->file('Build.PL'))
+    if(-e $self->root->file('Build.PL'))
     {
       $self->_run($^X, 'Build.PL');
       $self->_run($^X, 'Build', 'dist');
@@ -48,6 +42,12 @@ has build_root => (
       $self->_run($^X, 'Makefile.PL');
       $self->_run('make', 'dist');
       return Nightly->extract_tar($self->_find_tar($self->root));
+    }
+    elsif(-e $self->root->file('dist.ini'))
+    {
+      my $build_root = Path::Class::Dir->new( tempdir( CLEANUP => 1 ) );
+      $self->_run('dzil', 'build', '--in' => $build_root);
+      return $build_root;
     }
     else
     {
