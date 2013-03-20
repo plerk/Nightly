@@ -14,17 +14,20 @@
   [% FOREACH d IN dists %]
     <tr>
       <td>
-        <a href="[% d.url %]">[% d.name %]</a>
+        <a href="[% d.root_url %]">[% d.build_meta.name %]</a>
       </td>
       <td>
-        <a href="[% d.url %]">[% d.meta.abstract %]</a>
+        <a href="[% d.root_url %]">[% d.build_meta.abstract %]</a>
       </td>
       <td>
-        <a href="[% d.url %]">[% d.meta.version %]</a>
+        <a href="[% d.root_url %]">[% d.build_meta.version %]</a>
       </td>
     </tr>
   [% END %]
   </tbody>
 </table>
 
+<p>total distributions: [% dists.size %]</p>
+
 [% END %]
+

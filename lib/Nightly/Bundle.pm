@@ -47,8 +47,7 @@ has home_url => (
     my $self = shift;
     my $uri = $self->root_url->clone;
     my $path = Path::Class::Dir
-      ->new_foreign('Unix', $self->root_url->path)
-      ->file('index.html')
+      ->new_foreign('Unix', $self->root_url->path, 'index.html')
       ->as_foreign('Unix');
     $uri->path($path);
     $uri;
@@ -179,11 +178,20 @@ sub generate_index_html
     $uri->path(
       Path::Class::Dir
         ->new_foreign('Unix', $self->root_url->path)
+        ->subdir($dist->build_meta->name)
+        ->as_foreign('Unix')
+    );
+    
+    $dist->root_url($uri->clone);
+    
+    $uri->path(
+      Path::Class::Dir
+        ->new_foreign('Unix', $self->root_url->path)
         ->file($dist->build_meta->name, 'index.html')
         ->as_foreign('Unix')
     );
     
-    $dist->root_url($uri);
+    $dist->home_url($uri->clone);
     
     push @dists, $dist;
     
@@ -203,7 +211,7 @@ sub generate_index_html
   $self->root->file('index.html')->spew(do {
     my $html = '';
     $self->tt->process(
-      'dist_index.tt',
+      'dists_index.tt',
       { bundle => $self, dists => \@dists },
       \$html,
     ) || die $self->tt->error;

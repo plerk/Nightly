@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 30;
+use Test::More tests => 27;
 use Nightly::Tar::File;
 use Path::Class qw( file dir );
 
@@ -40,10 +40,6 @@ ok defined $pods{'Foo::FAQ'}, 'has pod Foo::FAQ';
 isa_ok $pods{'foo'}->file, 'Path::Class::File';
 isa_ok $pods{'Foo::Bar'}->file, 'Path::Class::File';
 isa_ok $pods{'Foo::FAQ'}->file, 'Path::Class::File';
-
-is($pods{foo}->type,        'pl',  'type = pl');
-is($pods{'Foo::Bar'}->type, 'pm',  'type = pm');
-is($pods{'Foo::FAQ'}->type, 'pod', 'type = pod');
 
 isa_ok $pods{foo}->dist, 'Nightly::Dist';
 isa_ok $pods{'Foo::Bar'}->dist, 'Nightly::Dist';

@@ -118,6 +118,20 @@ sub _find_tar
   return $list[0];
 }
 
+has pod_links => (
+  is      => 'ro',
+  lazy    => 1,
+  default => sub { {} },
+);
+
+sub _cmp
+{
+  my($a,$b) = map { $_->basename } @_;
+  $a =~ s/\..*$//;
+  $b =~ s/\..*$//;
+  $a cmp $b;
+}
+
 sub find_pods
 {
   my($self) = @_;
@@ -126,32 +140,35 @@ sub find_pods
   
   if(-d $self->build_root->subdir('bin'))
   {
-    foreach my $script ($self->build_root->subdir('bin')->children(no_hidden => 1))
+    foreach my $script (sort { $a->basename cmp $b->basename } $self->build_root->subdir('bin')->children(no_hidden => 1))
     {
-      push @list, Nightly::Pod::File->new(
+      my $pod_file = Nightly::Pod::File->new(
         name => $script->basename,
         file => $script,
-        type => 'pl',
         dist => $self,
       );
+      push @list, $pod_file;
+      push @{ $self->pod_links->{Scripts} }, $pod_file->link;
     }
   }
   
   my $recurse;
   $recurse = sub {
     my($dir, @name) = @_;
-    foreach my $child ($dir->children(no_hidden => 1))
+    foreach my $child (sort { _cmp($a,$b) } $dir->children(no_hidden => 1))
     {
       if($child->is_dir)
       { $recurse->($child, @name, $child->basename) }
       elsif($child->basename =~ /^(.*)\.(pod|pm)$/)
       {
-        push @list, Nightly::Pod::File->new(
+        my $type = $2;
+        my $pod_file = Nightly::Pod::File->new(
           name => join('::', @name, $1),
           file => $child,
-          type => $2,
           dist => $self,
         );
+        push @list, $pod_file;
+        push @{ $self->pod_links->{$type eq 'pm' ? 'Module' : 'Documentation'} }, $pod_file->link;
       }
     }
   };
@@ -189,6 +206,11 @@ sub is_perl_dist
 }
 
 has root_url => (
+  is => 'rw',
+  Nightly->isa_uri,
+);
+
+has home_url => (
   is => 'rw',
   Nightly->isa_uri,
 );

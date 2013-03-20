@@ -11,7 +11,8 @@ use Nightly::Tar::File;
 # VERSION
 
 my $bundle = Nightly::Bundle->new(
-  root => "/home/ollisg/web/sites/default/perl/",
+  brand    => 'Plicease',
+  root     => "/home/ollisg/web/sites/default/perl/",
   root_url => "http://grunion.isc.wdlabs.com/perl",
 );
 

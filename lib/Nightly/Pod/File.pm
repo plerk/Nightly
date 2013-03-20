@@ -7,6 +7,7 @@ use Moo;
 use warnings NONFATAL => 'all';
 use Pod::Abstract;
 use Nightly::HTML::Generator;
+use Nightly::Pod::Link;
 
 # ABSTRACT: Pod file
 # VERSION
@@ -20,12 +21,6 @@ has file => (
   is       => 'ro',
   required => 1,
   Nightly->isa_file,
-);
-
-has type => (
-  is       => 'ro',
-  required => 1,
-  isa      => sub { die 'type must be one of pl|pm|pod' unless $_[0] =~ /^(pl|pm|pod)$/ }
 );
 
 has dist => (
@@ -86,6 +81,15 @@ sub html
   $psx->parse_file($self->file->stringify);
   
   $html;
+}
+
+sub link
+{
+  my $self = shift;
+  Nightly::Pod::Link->new(
+    name     => $self->name,
+    abstract => $self->abstract,
+  )
 }
 
 1;
