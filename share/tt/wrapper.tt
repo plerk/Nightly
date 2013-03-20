@@ -46,7 +46,7 @@
             [% IF dist %]
               <ul class="nav">
                 <li>
-                  <a href="[% dist.url %]">[% dist.meta.name %]</a>
+                  <a href="[% dist.url %]">[% dist.build_meta.name %]</a>
                 </li>
               </ul>
               <ul class="nav">
@@ -56,7 +56,7 @@
                     <b class="caret"></b>
                   </a>
                   <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
-                    [% FOREACH resource IN dist.meta.resources %]
+                    [% FOREACH resource IN dist.build_meta.resources %]
                       <li><a tabindex="-1" href="[% IF resource.value.web %][% resource.value.web %][% ELSE %][% resource.value %][% END %]">
                         [% resource.key.ucfirst %]</a>
                     [% END %]

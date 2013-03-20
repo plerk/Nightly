@@ -1,10 +1,10 @@
 [% WRAPPER wrapper.tt
-   title = dist.meta.name
+   title = dist.build_meta.name
 %]
 
-<p>[% dist.meta.abstract %]</p>
+<p>[% dist.build_meta.abstract %]</p>
 
-<p>version: <strong>[% dist.meta.version %]</strong></p>
+<p>version: <strong>[% dist.build_meta.version %]</strong></p>
 
 [% IF pods.pm %]
 

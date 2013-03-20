@@ -12,8 +12,8 @@ use Path::Class::Dir;
 use AnyEvent;
 use AnyEvent::Open3::Simple;
 use CPAN::Meta;
-use Archive::Tar;
 use Nightly;
+use Nightly::Pod::File;
 
 # ABSTRACT: Checked or untared dist
 # VERSION
@@ -41,13 +41,13 @@ has build_root => (
     {
       $self->_run($^X, 'Build.PL');
       $self->_run($^X, 'Build', 'dist');
-      return $self->_extract_tar($self->_find_tar($self->root));
+      return Nightly->extract_tar($self->_find_tar($self->root));
     }
     elsif(-e $self->root->file('Makefile.PL'))
     {
       $self->_run($^X, 'Makefile.PL');
       $self->_run('make', 'dist');
-      return $self->_extract_tar($self->_find_tar($self->root));
+      return Nightly->extract_tar($self->_find_tar($self->root));
     }
     else
     {
@@ -118,29 +118,79 @@ sub _find_tar
   return $list[0];
 }
 
-sub _extract_tar
+sub find_pods
 {
-  my($self, $tar_fn, $dir) = @_;
+  my($self) = @_;
   
-  my $root = Path::Class::Dir->new( tempdir( CLEANUP => 1) );
+  my @list;
   
-  my $tar = Archive::Tar->new;
-  $tar->read($tar_fn);
-  foreach my $fn ($tar->list_files)
+  if(-d $self->build_root->subdir('bin'))
   {
-    if($fn =~ m{/$})
+    foreach my $script ($self->build_root->subdir('bin')->children(no_hidden => 1))
     {
-      $root->subdir( $fn )->mkpath(0, 0700);
-    }
-    else
-    {
-      my $dest_fn = $fn;
-      $dest_fn =~ s{^.*?/}{};
-      $tar->extract_file($fn, $root->file( $dest_fn )->stringify );
+      push @list, Nightly::Pod::File->new(
+        name => $script->basename,
+        file => $script,
+        type => 'pl',
+        dist => $self,
+      );
     }
   }
   
-  return $root;
+  my $recurse;
+  $recurse = sub {
+    my($dir, @name) = @_;
+    foreach my $child ($dir->children(no_hidden => 1))
+    {
+      if($child->is_dir)
+      { $recurse->($child, @name, $child->basename) }
+      elsif($child->basename =~ /^(.*)\.(pod|pm)$/)
+      {
+        push @list, Nightly::Pod::File->new(
+          name => join('::', @name, $1),
+          file => $child,
+          type => $2,
+          dist => $self,
+        );
+      }
+    }
+  };
+  
+  if(-d $self->build_root->subdir('lib'))
+  {
+    $recurse->($self->build_root->subdir('lib'));
+  }
+  undef $recurse;
+  
+  return @list;
 }
+
+sub is_dist_zilla
+{ -r shift->root->file('dist.ini') }
+
+sub is_module_build
+{
+  my $self = shift;
+  return 1 if -r $self->root->file('Build.PL');
+  return $self->is_dist_zilla && $self->build_root->file('Build.PL');
+}
+
+sub is_make_maker
+{
+  my $self = shift;
+  return 1 if -r $self->root->file('Makefile.PL');
+  return $self->is_dist_zilla && $self->build_root->file('Makefile.PL');
+}
+
+sub is_perl_dist
+{
+  my $self = shift;
+  $self->is_dist_zilla || $self->is_module_build || $self->is_make_maker;
+}
+
+has root_url => (
+  is => 'rw',
+  Nightly->isa_uri,
+);
 
 1;
