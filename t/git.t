@@ -10,7 +10,6 @@ require(file( __FILE__ )->parent->file('testlib.pl'));
 foreach my $name (sort qw( build-git dz-git make-git ))
 {
   my $repo_root = extract_tar("$name.tar.gz");
-  $DB::single = 1;
 
   my $repo = Nightly::Git::Repo->new(
     root => $repo_root->subdir('Foo-Bar'),
