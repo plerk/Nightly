@@ -75,7 +75,7 @@ sub share_dir
       ->subdir('share');
     
     $path = Path::Class::Dir->new(dist_dir('Nightly'))
-      unless -d $path;
+      unless -r $path->file('Nightly.txt');
   }
   
   return $path;
