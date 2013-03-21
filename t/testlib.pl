@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use v5.10;
+use Test::More;
 
 sub extract_tar {
   my $name = shift;

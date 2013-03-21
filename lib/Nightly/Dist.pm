@@ -9,6 +9,7 @@ use File::chdir;
 use Dist::Zilla::App;
 use File::Temp qw( tempdir );
 use Path::Class::Dir;
+use EV;
 use AnyEvent;
 use AnyEvent::Open3::Simple;
 use CPAN::Meta;
