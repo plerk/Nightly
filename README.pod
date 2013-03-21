@@ -1,3 +1,5 @@
+=pod
+
 =head1 NAME
 
 Nightly - Tools for Continuous Integration Testing and Documentation

@@ -220,8 +220,8 @@ sub external_links
     foreach my $name (keys %{ $self->build_meta->resources })
     {
       my $value = $self->build_meta->resources->{$name};
-      my $url = ref($value) ? (values %$value)[0] : $value;
-      $url =~ s{^git:}{https:};
+      next if ref($value) && ! defined $value->{web};
+      my $url = ref($value) ? $value->{web} : $value;
       $url = URI->new($url);
       $url->host('search.mcpan.org')
         if $url->host eq 'search.cpan.org';
