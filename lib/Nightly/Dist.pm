@@ -66,7 +66,13 @@ has build_meta => (
     my $root = shift->build_root;
     my $fn;
     foreach my $file (qw( META.json META.yml ))
-    { $fn = $root->file($file) if -r $root->file($file) }
+    {
+      if(-r $root->file($file))
+      {
+        $fn = $root->file($file);
+        last;
+      } 
+    }
     die "could not find META.json or META.yml" unless defined $fn;
     CPAN::Meta->load_file($fn->stringify);
   },
@@ -219,17 +225,29 @@ sub external_links
   {
     foreach my $name (keys %{ $self->build_meta->resources })
     {
-      my $value = $self->build_meta->resources->{$name};
-      next if ref($value) && ! defined $value->{web};
-      my $url = ref($value) ? $value->{web} : $value;
-      $url = URI->new($url);
-      $url->host('search.mcpan.org')
-        if $url->host eq 'search.cpan.org';
-      push @{ $self->{external_links} }, 
-        Nightly::ExternalLink->new(
-          name => $name,
-          url  => $url,
-        );
+      eval {
+        my $values = $self->build_meta->resources->{$name};
+        $values = [ $values ] unless ref($values) eq 'ARRAY';
+        foreach my $value (@$values) {
+          next unless defined $value;
+          next if ref($value) && ! defined $value->{web};
+          my $url = ref($value) ? $value->{web} : $value;
+          $url = URI->new($url);
+          $url->host('search.mcpan.org')
+            if $url->host eq 'search.cpan.org';
+          push @{ $self->{external_links} }, 
+            Nightly::ExternalLink->new(
+              name => $name,
+              url  => $url,
+            );
+        }
+      };
+      if(my $error = $@)
+      {
+        say STDERR "error with resource $name in dist " . $self->build_meta->name;
+        say STDERR $error;
+        say STDERR "skipping";
+      }
     }
   }
 
