@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use EV;
 use Test::More tests => 11;
 
 use_ok 'Nightly';
