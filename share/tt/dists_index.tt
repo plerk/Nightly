@@ -8,6 +8,7 @@
       <th>Name</th>
       <th>Abstract</th>
       <th>Version</th>
+      [% IF bundle.run_tests %]<th>Test</th>[% END %]
     <tr>
   </thead>
   <tbody>
@@ -22,6 +23,11 @@
       <td>
         <a href="[% d.root_url %]">[% d.build_meta.version %]</a>
       </td>
+      [% IF bundle.run_tests %]
+        <td>
+          <a href="[% d.test_url %]"><span class="test_[% IF d.tests_passed %]ok[% ELSE %]not_ok[% END %]">[% IF d.tests_passed %]PASS[% ELSE %]FAIL[% END %]</span></a>
+        </td>
+      [% END %]
     </tr>
   [% END %]
   </tbody>

@@ -30,6 +30,12 @@
       });
     </script>
     
+    <style type="text/css">
+      .test_not_ok {
+        color: red;
+      }
+    </style>
+    
   </head>
   <body>
   
@@ -52,7 +58,7 @@
               [% IF bundle.run_tests %]
                 <ul class="nav">
                   <li>
-                    <a href="[% dist.test_url %]">Tests</a>
+                    <a href="[% dist.test_url %]"><span class="test_[% IF (dist.tests_passed) || (report && !report.has_problems) %]ok[% ELSE %]not_ok[% END %]">Tests</a></a>
                   </li>
                 </ul>
               [% END %]

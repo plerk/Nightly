@@ -12,6 +12,7 @@ use Path::Class::File;
 use Path::Class::Dir;
 use File::Copy qw( copy );
 use Template;
+use YAML::XS ();
 use Nightly;
 use Nightly::HTML::Generator;
 
@@ -158,9 +159,13 @@ has tt => (
   init_arg => undef,
   lazy     => 1,
   default  => sub {
-    Template->new(
-      INCLUDE_PATH => Nightly->share_dir->subdir('tt')->stringify
+    my $tt = Template->new(
+      INCLUDE_PATH => Nightly->share_dir->subdir('tt')->stringify,
     );
+    $tt->context->define_vmethod($_, 'to_yaml', sub {
+      return YAML::XS::Dump(shift);
+    }) for qw( hash list scalar );
+    $tt;
   },
 );
 
@@ -207,22 +212,23 @@ sub generate_index_html
     
     push @dists, $dist;
     
+    my $dist_out_root = $self
+      ->root
+      ->subdir( $dist->build_meta->name );
+
+    $dist->run_tests($self->tt, $dist_out_root, { bundle => $self, dist => $dist })
+      if $self->run_tests;
+    
     my $html = '';
     $self->tt->process(
       'dist_index.tt',
       { bundle => $self, dist => $dist },
       \$html
     ) || die $self->tt->error;
-    
-    my $dist_out_root = $self
-      ->root
-      ->subdir( $dist->build_meta->name );
+
     $dist_out_root
       ->file( 'index.html' )
       ->spew($html);
-    
-    $dist->run_tests($self->tt, $dist_out_root, { bundle => $self, dist => $dist })
-      if $self->run_tests;
   }
 
   $self->root->file('index.html')->spew(do {

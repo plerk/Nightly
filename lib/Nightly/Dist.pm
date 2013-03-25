@@ -264,11 +264,16 @@ sub external_links
   return $self->{external_links};
 }
 
+has tests_passed => (
+  is       => 'rw',
+  init_arg => undef,
+);
+
 sub run_tests
 {
   my($self, $tt, $outdir, $vars) = @_;
   
-  local $CWD = $self->root->stringify;
+  local $CWD = $self->build_root->stringify;
   
   if(-e $self->build_root->file('Build.PL'))
   {
@@ -279,6 +284,10 @@ sub run_tests
   {
     $self->_run($^X, 'Makefile.PL');
     $self->_run('make');
+  }
+  else
+  {
+    die 'FIXME';
   }
   
   my @tests = glob 't/*.t';
@@ -301,7 +310,16 @@ sub run_tests
     ],
   });
 
-  $self->_monkey1($vars, sub { $harness->runtests(@tests) });
+  my $ag = $self->_monkey1($vars, sub { $harness->runtests(@tests) });
+  
+  if($ag->all_passed)
+  {
+    $self->tests_passed(1);
+  }
+  else
+  {
+    $self->tests_passed(0);
+  }
 
   close $out;
 
@@ -322,9 +340,11 @@ sub _monkey1
   
   do { no warnings 'redefine'; *Template::process = $process };
   
-  $cb->();
+  my $ret = $cb->();
   
   do { no warnings 'redefine'; *Template::process = $save; };
+  
+  return $ret;
 }
 
 1;
