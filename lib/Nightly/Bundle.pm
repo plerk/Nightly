@@ -62,6 +62,8 @@ has dists => (
   default => sub { { } },
 );
 
+has run_tests => ( is => 'ro', default => sub { 0 } );
+
 sub add_dist
 {
   my($self, $dist) = @_;
@@ -194,6 +196,15 @@ sub generate_index_html
     
     $dist->home_url($uri->clone);
     
+    $uri->path(
+      Path::Class::Dir
+        ->new_foreign('Unix', $self->root_url->path)
+        ->file($dist->build_meta->name, 'test.html')
+        ->as_foreign('Unix')
+    );
+    
+    $dist->test_url($uri->clone);
+    
     push @dists, $dist;
     
     my $html = '';
@@ -203,10 +214,15 @@ sub generate_index_html
       \$html
     ) || die $self->tt->error;
     
-    $self
+    my $dist_out_root = $self
       ->root
-      ->file( $dist->build_meta->name, 'index.html' )
+      ->subdir( $dist->build_meta->name );
+    $dist_out_root
+      ->file( 'index.html' )
       ->spew($html);
+    
+    $dist->run_tests($self->tt, $dist_out_root, { bundle => $self, dist => $dist })
+      if $self->run_tests;
   }
 
   $self->root->file('index.html')->spew(do {

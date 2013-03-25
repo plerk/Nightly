@@ -14,9 +14,10 @@ use File::HomeDir;
 # VERSION
 
 my $bundle = Nightly::Bundle->new(
-  brand    => 'Plicease',
-  root     => "/home/ollisg/web/sites/default/perl/",
-  root_url => "http://grunion.isc.wdlabs.com/perl",
+  brand     => 'Plicease',
+  root      => "/home/ollisg/web/sites/default/perl/",
+  root_url  => "http://grunion.isc.wdlabs.com/perl",
+  run_tests => 1,
 );
 
 $bundle->root->subdir('cpan')->mkpath(0,0755);
@@ -33,7 +34,7 @@ foreach my $tar (map { Nightly::Tar::File->new( file => $_ ) }grep /\.tar.gz$/, 
 }
 
 my $dev = dir(File::HomeDir->my_home, 'dev');
-if(-d $dev)
+if(0 && -d $dev)
 {
   foreach my $child (sort { $a->basename cmp $b->basename } $dev->children(no_hidden => 1))
   {

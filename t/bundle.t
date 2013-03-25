@@ -1,12 +1,17 @@
 use strict;
 use warnings;
-use Test::More tests => 19;
+use Test::More tests => 21;
 use Path::Class qw( file );
 use Nightly::Bundle;
 use Nightly::Tar::File;
 use File::Temp qw( tempdir );
 
-my $bundle = eval { Nightly::Bundle->new( root => tempdir( CLEANUP => 1 ) )};
+my $bundle = eval { 
+  Nightly::Bundle->new( 
+    root      => tempdir( CLEANUP => 1 ),
+    run_tests => 1,
+  )
+};
 
 isa_ok $bundle, 'Nightly::Bundle';
 
@@ -47,3 +52,5 @@ $bundle->generate_pod_html;
 ok(-r $bundle->root->file('Foo-Bar', 'Foo::Bar.html'), 'has Foo-Bar/Foo::Bar.html');
 ok(-r $bundle->root->file('Foo-Bar', 'Foo::FAQ.html'), 'has Foo-Bar/Foo::FAQ.html');
 ok(-r $bundle->root->file('Foo-Bar', 'foo.html'), 'has Foo-Bar/foo.html');
+ok(-s $bundle->root->file('Foo-Bar', 'test.html'), 'has Foo-Bar/test.html');
+ok(-s $bundle->root->file('Foo-Bar', 'test.txt'), 'has Foo-Bar/test.txt');

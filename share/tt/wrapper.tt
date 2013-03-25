@@ -49,6 +49,13 @@
                   <a href="[% dist.home_url %]">[% dist.build_meta.name %]</a>
                 </li>
               </ul>
+              [% IF bundle.run_tests %]
+                <ul class="nav">
+                  <li>
+                    <a href="[% dist.test_url %]">Tests</a>
+                  </li>
+                </ul>
+              [% END %]
               [% IF dist.external_links %]
                 <ul class="nav">
                   <li>

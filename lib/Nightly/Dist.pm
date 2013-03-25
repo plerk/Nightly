@@ -14,6 +14,8 @@ use AnyEvent;
 use AnyEvent::Open3::Simple;
 use CPAN::Meta;
 use URI;
+use TAP::Harness;
+use TAP::Formatter::HTML;
 use Nightly;
 use Nightly::Pod::File;
 use Nightly::ExternalLink;
@@ -218,6 +220,11 @@ has home_url => (
   Nightly->isa_uri,
 );
 
+has test_url => (
+  is => 'rw',
+  Nightly->isa_uri,
+);
+
 sub external_links
 {
   my($self, @new) = @_;
@@ -255,6 +262,65 @@ sub external_links
   push @{ $self->{external_links} }, @new if @new > 0;
   
   return $self->{external_links};
+}
+
+sub run_tests
+{
+  my($self, $tt, $outdir, $vars) = @_;
+  
+  local $CWD = $self->root->stringify;
+  
+  if(-e $self->build_root->file('Build.PL'))
+  {
+    $self->_run($^X, 'Build.PL');
+    $self->_run($^X, 'Build');
+  }
+  elsif(-e $self->build_root->file('Makefile.PL'))
+  {
+    $self->_run($^X, 'Makefile.PL');
+    $self->_run('make');
+  }
+  
+  my @tests = glob 't/*.t';
+
+  my $fmt = TAP::Formatter::HTML->new;
+  $fmt->output_file( $outdir->file('test.html')->stringify );
+  $fmt->template_processor( $tt );
+  $fmt->template('test.tt');
+
+  my $buffer = '';
+  open my $out, '>', \$buffer;
+  $fmt->stdout($out);
+  
+  my $harness = TAP::Harness->new({
+    formatter => $fmt,
+    merge     => 1,
+  });
+
+  $self->_monkey1($vars, sub { $harness->runtests(@tests) });
+
+  close $out;
+
+  $outdir->file('test.txt')->spew($buffer);
+}
+
+sub _monkey1
+{
+  my($self, $vars1, $cb) = @_;
+  
+  my $save = \&Template::process;
+  
+  my $process = sub {
+    my($tt, $input, $vars2, @rest) = @_;
+    my %vars = (%$vars1, %$vars2);
+    return $save->($tt, $input, \%vars, @rest);
+  };
+  
+  do { no warnings 'redefine'; *Template::process = $process };
+  
+  $cb->();
+  
+  do { no warnings 'redefine'; *Template::process = $save; };
 }
 
 1;
