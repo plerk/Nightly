@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.04      2013-03-25 16:27:50 America/New_York
+  - run tests and create a test tab if requested
+
 0.03      2013-03-21 10:50:17 America/New_York
 
 0.02      2013-03-20 23:16:19 America/New_York
