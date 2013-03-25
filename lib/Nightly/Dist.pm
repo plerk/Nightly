@@ -295,6 +295,10 @@ sub run_tests
   my $harness = TAP::Harness->new({
     formatter => $fmt,
     merge     => 1,
+    lib       => [ 
+      map { Path::Class::Dir->new->absolute->subdir('blib', $_)->stringify }
+      qw( lib arch )
+    ],
   });
 
   $self->_monkey1($vars, sub { $harness->runtests(@tests) });
