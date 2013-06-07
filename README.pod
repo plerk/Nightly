@@ -6,7 +6,7 @@ Nightly - Tools for Continuous Integration Testing and Documentation
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
 =head1 AUTHOR
 

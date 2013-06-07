@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.05      2013-06-07 14:34:40 EST5EDT
+  - auto upload after release
+
 0.04      2013-03-25 16:27:50 America/New_York
   - run tests and create a test tab if requested
 
